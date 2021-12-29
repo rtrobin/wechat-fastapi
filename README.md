@@ -4,9 +4,9 @@
 
 ## 使用方法
 
-- `git clone && git pull`
-- 将公众号后台的 token, AES_KEY, appid 填入到 `docker-compose.yml` 中对应的环境变量位置
-- `docker compose up`
+- `git clone` or `git pull`
+- 将公众号后台的 `token`, `AES_KEY`, `appid` 填入到 `docker-compose.yml` 中对应的环境变量位置
+- `docker compose up -d`
 
 当前功能：
 
