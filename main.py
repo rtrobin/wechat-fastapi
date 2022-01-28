@@ -5,35 +5,39 @@ import re
 import asyncio
 import os
 
-from wechatpy import parse_message, create_reply
-from wechatpy.utils import check_signature
-from wechatpy.exceptions import (
-    InvalidSignatureException,
-    InvalidAppIdException,
-)
+from wechatpy.enterprise import parse_message, create_reply
+from wechatpy.enterprise.crypto import WeChatCrypto
+from wechatpy.exceptions import InvalidSignatureException
+from wechatpy.enterprise.exceptions import InvalidCorpIdException
 
 app = FastAPI()
 TOKEN = os.environ.get('TOKEN', '')
 AES_KEY = os.environ.get('AESKEY', '')
-APPID = os.environ.get('APPID', '')
+CORP_ID = os.environ.get('CORPID', '')
 
 @app.get('/wechat')
 async def wechat(
     request: Request
 ):
-    signature = request.query_params.get('signature', '')
+    signature = request.query_params.get('msg_signature', '')
     timestamp = request.query_params.get('timestamp', '')
     nonce = request.query_params.get('nonce', '')
+    echo_str = request.query_params.get('echostr', '')
 
+    crypto = WeChatCrypto(TOKEN, AES_KEY, CORP_ID)
     try:
-        check_signature(TOKEN, signature, timestamp, nonce)
+        echo_str = crypto.check_signature(
+            signature,
+            timestamp,
+            nonce,
+            echo_str
+        )
     except InvalidSignatureException:
         raise HTTPException(status_code=403)
 
-    echo_str = request.query_params.get('echostr', '')
     return HTMLResponse(content=echo_str)
 
-async def parse_msg(msg: str) -> str :
+async def fetch_info(msg: str) -> str :
     msg = msg.lower()
 
     def parse_url(url: str, type: str) -> str:
@@ -60,40 +64,27 @@ async def wechat(
 ):
     timestamp = request.query_params.get('timestamp', '')
     nonce = request.query_params.get('nonce', '')
-    encrypt_type = request.query_params.get('encrypt_type', 'raw')
     msg_signature = request.query_params.get('msg_signature', '')
 
     body_msg = await request.body()
-    if encrypt_type == 'raw':
-        # plaintext mode
+
+    crypto = WeChatCrypto(TOKEN, AES_KEY, CORP_ID)
+    try:
+        body_msg = crypto.decrypt_message(
+            body_msg,
+            msg_signature,
+            timestamp,
+            nonce
+        )
+    except (InvalidSignatureException, InvalidCorpIdException):
+        raise HTTPException(status_code=403)
+    else:
         msg = parse_message(body_msg)
-        if msg.type != 'text':
+        if msg.type != 'event':
             reply = create_reply('暂不支持该类型_(:зゝ∠)_', msg)
         else:
-            reply = await parse_msg(msg.content)
+            reply = await fetch_info(msg.key)
             reply = create_reply(reply, msg)
-        return HTMLResponse(reply.render())
-    else:
-        # encryption mode
-        from wechatpy.crypto import WeChatCrypto
-
-        crypto = WeChatCrypto(TOKEN, AES_KEY, APPID)
-        try:
-            body_msg = crypto.decrypt_message(
-                body_msg,
-                msg_signature,
-                timestamp,
-                nonce
-            )
-        except (InvalidSignatureException, InvalidAppIdException):
-            raise HTTPException(status_code=403)
-        else:
-            msg = parse_message(body_msg)
-            if msg.type != 'text':
-                reply = create_reply('暂不支持该类型_(:зゝ∠)_', msg)
-            else:
-                reply = await parse_msg(msg.content)
-                reply = create_reply(reply, msg)
-            return HTMLResponse(crypto.encrypt_message(reply.render(), nonce, timestamp))
+        return HTMLResponse(crypto.encrypt_message(reply.render(), nonce, timestamp))
 
     
