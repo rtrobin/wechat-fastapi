@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 from fastapi.responses import HTMLResponse
 import requests
 import re
@@ -17,25 +17,23 @@ CORP_ID = os.environ.get('CORPID', '')
 
 @app.get('/wechat')
 async def wechat(
-    request: Request
+    msg_signature: str,
+    timestamp: str,
+    nonce: str,
+    echostr: str
 ):
-    signature = request.query_params.get('msg_signature', '')
-    timestamp = request.query_params.get('timestamp', '')
-    nonce = request.query_params.get('nonce', '')
-    echo_str = request.query_params.get('echostr', '')
-
     crypto = WeChatCrypto(TOKEN, AES_KEY, CORP_ID)
     try:
-        echo_str = crypto.check_signature(
-            signature,
+        echostr = crypto.check_signature(
+            msg_signature,
             timestamp,
             nonce,
-            echo_str
+            echostr
         )
     except InvalidSignatureException:
         raise HTTPException(status_code=403)
 
-    return HTMLResponse(content=echo_str)
+    return HTMLResponse(content=echostr)
 
 async def fetch_info(msg: str) -> str :
     msg = msg.lower()
@@ -60,14 +58,11 @@ async def fetch_info(msg: str) -> str :
 
 @app.post('/wechat')
 async def wechat(
-    request: Request
+    msg_signature: str,
+    timestamp: str,
+    nonce: str,
+    body_msg: str = Body(..., media_type='application/html')
 ):
-    timestamp = request.query_params.get('timestamp', '')
-    nonce = request.query_params.get('nonce', '')
-    msg_signature = request.query_params.get('msg_signature', '')
-
-    body_msg = await request.body()
-
     crypto = WeChatCrypto(TOKEN, AES_KEY, CORP_ID)
     try:
         body_msg = crypto.decrypt_message(
