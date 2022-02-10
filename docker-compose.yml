@@ -12,6 +12,9 @@ services:
       # - WECOM_TOKEN=[your token]
       # - WECOM_AESKEY=[your aes_key]
       # - WECOM_CORPID=[your corpid]
+      # - WECHAT_TOKEN=[your token]
+      # - WECHAT_AESKEY=[your aes_key]
+      # - WECHAT_APPID=[your appid]
     command: "uvicorn --host 0.0.0.0 --port 3000 --reload main:app"
 
   nginx:
@@ -25,4 +28,3 @@ services:
       - TZ=Asia/Shanghai
     depends_on:
       - wechat
-
