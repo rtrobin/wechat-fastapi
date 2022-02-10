@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Body
+from fastapi import APIRouter, HTTPException, Body
 from fastapi.responses import HTMLResponse
 import requests
 import re
@@ -10,12 +10,12 @@ from wechatpy.enterprise.crypto import WeChatCrypto
 from wechatpy.exceptions import InvalidSignatureException
 from wechatpy.enterprise.exceptions import InvalidCorpIdException
 
-app = FastAPI()
+router = APIRouter()
 TOKEN = os.environ.get('TOKEN', '')
 AES_KEY = os.environ.get('AESKEY', '')
 CORP_ID = os.environ.get('CORPID', '')
 
-@app.get('/wechat')
+@router.get('/wechat')
 async def wechat(
     msg_signature: str,
     timestamp: str,
@@ -56,7 +56,7 @@ async def fetch_info(msg: str) -> str :
 
     return await asyncio.to_thread(parse_url, url, msg)
 
-@app.post('/wechat')
+@router.post('/wechat')
 async def wechat(
     msg_signature: str,
     timestamp: str,
@@ -81,5 +81,3 @@ async def wechat(
             reply = await fetch_info(msg.key)
             reply = create_reply(reply, msg)
         return HTMLResponse(crypto.encrypt_message(reply.render(), nonce, timestamp))
-
-    
