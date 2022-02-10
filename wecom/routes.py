@@ -10,12 +10,12 @@ from wechatpy.enterprise.exceptions import InvalidCorpIdException
 from utils.fetch_vmess import fetch_info
 
 router = APIRouter()
-TOKEN = os.environ.get('TOKEN', '')
-AES_KEY = os.environ.get('AESKEY', '')
-CORP_ID = os.environ.get('CORPID', '')
+TOKEN = os.environ.get('WECOM_TOKEN', '')
+AES_KEY = os.environ.get('WECOM_AESKEY', '')
+CORP_ID = os.environ.get('WECOM_CORPID', '')
 
-@router.get('/wechat')
-async def wechat(
+@router.get('/wecom')
+async def wecom(
     msg_signature: str,
     timestamp: str,
     nonce: str,
@@ -34,8 +34,8 @@ async def wechat(
 
     return HTMLResponse(content=echostr)
 
-@router.post('/wechat')
-async def wechat(
+@router.post('/wecom')
+async def wecom(
     msg_signature: str,
     timestamp: str,
     nonce: str,

@@ -9,9 +9,9 @@ services:
       - .:/workspace/
     environment:
       - TZ=Asia/Shanghai
-      # - TOKEN=[your token]
-      # - AESKEY=[your aes_key]
-      # - CORPID=[your corpid]
+      # - WECOM_TOKEN=[your token]
+      # - WECOM_AESKEY=[your aes_key]
+      # - WECOM_CORPID=[your corpid]
     command: "uvicorn --host 0.0.0.0 --port 3000 --reload main:app"
 
   nginx:
