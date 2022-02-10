@@ -35,9 +35,9 @@ async def wechat(
 
 @router.post('/wechat')
 async def wechat(
-    msg_signature: str,
-    timestamp: str,
-    nonce: str,
+    msg_signature: Optional[str] = None,
+    timestamp: Optional[str] = None,
+    nonce: Optional[str] = None,
     encrypt_type: Optional[str] = None,
     body_msg: str = Body(..., media_type='application/html')
 ):
