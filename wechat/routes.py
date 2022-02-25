@@ -21,13 +21,13 @@ APP_ID = os.environ.get('WECHAT_APPID', '')
 
 @router.get('/wechat')
 async def wechat(
-    msg_signature: str,
+    signature: str,
     timestamp: str,
     nonce: str,
     echostr: str
 ):
     try:
-        check_signature(TOKEN, msg_signature, timestamp, nonce)
+        check_signature(TOKEN, signature, timestamp, nonce)
     except InvalidSignatureException:
         raise HTTPException(status_code=403)
 
