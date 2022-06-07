@@ -9,13 +9,10 @@ services:
       - .:/workspace/
     environment:
       - TZ=Asia/Shanghai
-      # - WECOM_TOKEN=[your token]
-      # - WECOM_AESKEY=[your aes_key]
-      # - WECOM_CORPID=[your corpid]
-      # - WECHAT_TOKEN=[your token]
-      # - WECHAT_AESKEY=[your aes_key]
-      # - WECHAT_APPID=[your appid]
+      - CREDENTIAL_FILE=/run/secrets/credential
     command: "uvicorn --host 0.0.0.0 --port 3000 --reload main:app"
+    secrets:
+      - credential
 
   nginx:
     container_name: nginx
@@ -28,3 +25,7 @@ services:
       - TZ=Asia/Shanghai
     depends_on:
       - wechat
+
+secrets:
+  credential:
+    file: ./secret/credential.json

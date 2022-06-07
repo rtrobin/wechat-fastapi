@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException, Body
 from fastapi.responses import HTMLResponse
-import os
 
 from wechatpy.enterprise import parse_message, create_reply
 from wechatpy.enterprise.crypto import WeChatCrypto
@@ -8,11 +7,11 @@ from wechatpy.exceptions import InvalidSignatureException
 from wechatpy.enterprise.exceptions import InvalidCorpIdException
 
 from utils.fetch_vmess import fetch_info
+from utils.credential import WECOM_AESKEY as AES_KEY
+from utils.credential import WECOM_CORPID as CORP_ID
+from utils.credential import WECOM_TOKEN as TOKEN
 
 router = APIRouter()
-TOKEN = os.environ.get('WECOM_TOKEN', '')
-AES_KEY = os.environ.get('WECOM_AESKEY', '')
-CORP_ID = os.environ.get('WECOM_CORPID', '')
 
 @router.get('/wecom')
 async def wecom(

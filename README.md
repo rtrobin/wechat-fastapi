@@ -5,8 +5,7 @@
 ## 使用方法
 
 - `git clone` or `git pull`
-- 将微信公众号的 `token`, `AES_KEY`, `appid` 填入到 `docker-compose.yml` 中对应的环境变量位置
-- 将企业微信的 `token`, `AES_KEY`, `corpid` 填入到 `docker-compose.yml` 中对应的环境变量位置
+- 参考 secrets/README.md 设置 微信公众号/企业微信 token 等信息
 - `docker compose up -d`
 
 当前功能：

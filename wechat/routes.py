@@ -1,4 +1,3 @@
-import os
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Body
@@ -13,11 +12,11 @@ from wechatpy.exceptions import (
 )
 
 from utils.fetch_vmess import fetch_info
+from utils.credential import WECHAT_AESKEY as AES_KEY
+from utils.credential import WECHAT_APPID as APP_ID
+from utils.credential import WECHAT_TOKEN as TOKEN
 
 router = APIRouter()
-TOKEN = os.environ.get('WECHAT_TOKEN', '')
-AES_KEY = os.environ.get('WECHAT_AESKEY', '')
-APP_ID = os.environ.get('WECHAT_APPID', '')
 
 @router.get('/wechat')
 async def wechat(
