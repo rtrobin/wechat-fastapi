@@ -1,4 +1,4 @@
-import requests
+import httpx
 import time
 
 def fetch_prices(ids: list[str]) -> list[float] :
@@ -18,7 +18,7 @@ def fetch_prices(ids: list[str]) -> list[float] :
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36 Edg/98.0.1108.62'
     }
 
-    ret = requests.get(
+    ret = httpx.get(
         'https://p.3.cn/prices/mgets',
         params=param,
         headers=headers

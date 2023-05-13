@@ -1,12 +1,13 @@
-import requests
 import re
-import asyncio
+import httpx
 
 async def fetch_info(msg: str) -> str :
     msg = msg.lower()
 
-    def parse_url(url: str, types: list[str]) -> str:
-        full_text = requests.get(url).content.decode()
+    async def parse_url(url: str, types: list[str]) -> str:
+        async with httpx.AsyncClient() as client:
+            r = await client.get(url)
+        full_text = r.content.decode()
         links = []
         for type in types:
             links += re.findall(f'{type}://.+(?=</)', full_text)
@@ -25,4 +26,4 @@ async def fetch_info(msg: str) -> str :
     else:
         return '暂不支持(⊙_⊙)?'
 
-    return await asyncio.to_thread(parse_url, url, types)
+    return await parse_url(url, types)
